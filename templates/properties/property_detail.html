@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}{{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow p-6">
+    <h1 class="text-3xl font-bold text-gray-800">{{ property.title }}</h1>
+    <p class="text-gray-500 mt-1">📍 {{ property.location }} • {{ property.property_type }} • {{ property.bedrooms }} bedrooms</p>
+    <p class="text-blue-600 text-2xl font-bold mt-2">Rs{{ property.price }}/month</p>
+
+    <!-- Photos -->
+    {% if photos %}
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+        {% for photo in photos %}
+            <img src="{{ photo.image.url }}" class="rounded-lg w-full h-48 object-cover" alt="Property photo">
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <p class="mt-6 text-gray-700 leading-relaxed">{{ property.description }}</p>
+    <p class="mt-2 text-sm text-gray-400">Posted by: {{ property.owner.username }}</p>
+</div>
+
+<!-- Contact Form -->
+<div class="bg-white rounded-xl shadow p-6 mt-6">
+
+    {% if user == property.owner %}
+        <!-- Owner viewing their own property — no contact form -->
+        <div class="text-center text-gray-400 py-4">
+            <p class="text-lg">🏠 This is your property.</p>
+            <a href="{% url 'my_messages' %}" class="mt-2 inline-block text-blue-600 hover:underline text-sm">View messages you've received →</a>
+        </div>
+
+    {% else %}
+        <h2 class="text-xl font-semibold mb-1">Contact Owner</h2>
+
+        {% if user.is_authenticated %}
+            <p class="text-sm text-gray-400 mb-4">Sending as <span class="text-blue-600 font-medium">{{ user.username }}</span> ({{ user.email }})</p>
+        {% else %}
+            <p class="text-sm text-gray-400 mb-4">
+                <a href="{% url 'login' %}" class="text-blue-600 hover:underline">Login</a> to contact the owner, or fill in your details below.
+            </p>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                {{ field }}
+                <style>input, textarea { width:100%; padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; }</style>
+            </div>
+            {% endfor %}
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Send Message</button>
+        </form>
+
+    {% endif %}
+</div>
+{% endblock %}
